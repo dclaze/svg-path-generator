@@ -1,5 +1,8 @@
 const Component = React.Component
 const render = ReactDOM.render
+const pointStore = new SVGPointStore();
+
+const points = pointStore.load();
 
 class Container extends Component {
     state = {
@@ -11,16 +14,8 @@ class Container extends Component {
             size: 50
         },
         ctrl: false,
-        points: [
-            { x: 100, y: 300 },
-            { x: 200, y: 300, q: { x: 150, y: 50 } },
-            { x: 300, y: 300, q: { x: 250, y: 550 } },
-            { x: 400, y: 300, q: { x: 350, y: 50 } },
-            { x: 500, y: 300, c: [{ x: 450, y: 550 }, { x: 450, y: 50 }] },
-            { x: 600, y: 300, c: [{ x: 550, y: 50 }, { x: 550, y: 550 }] },
-            { x: 700, y: 300, a: { rx: 50, ry: 50, rot: 0, laf: 1, sf: 1 } }
-        ],
-        activePoint: 2,
+        points: points,
+        activePoint: points.length - 1,
         draggedPoint: false,
         draggedQuadratic: false,
         draggedCubic: false,
@@ -35,6 +30,11 @@ class Container extends Component {
     componentWillUnmount() {
         document.removeEventListener("keydown")
         document.removeEventListener("keyup")
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+      const points = prevState.points;
+      pointStore.store(points);
     }
 
     positiveNumber(n) {
@@ -358,11 +358,24 @@ class Container extends Component {
     }
 
     reset = (e) => {
-        let w = this.state.w, h = this.state.h
+        let w = this.state.w, h = this.state.h;
+
+        const points = this.state.points;
+        points.splice(0, points.length);
+        points.push({ x: w / 2, y: h / 2 });
 
         this.setState({
-            points: [{ x: w / 2, y: h / 2 }],
+            points,
             activePoint: 0
+        })
+    };
+
+    restoreDefaults = (e) => {
+        const points = pointStore.loadDefaults();
+
+        this.setState({
+            points: points,
+            activePoint: points.length - 1
         })
     };
 
@@ -390,6 +403,7 @@ class Container extends Component {
                     <Controls
                         { ...this.state }
                         reset={ this.reset }
+                        restoreDefaults={ this.restoreDefaults }
                         removeActivePoint={ this.removeActivePoint }
                         setPointPosition={ this.setPointPosition }
                         setQuadraticPosition={ this.setQuadraticPosition }
@@ -817,6 +831,11 @@ function Controls(props) {
                     action="reset"
                     value="Reset path"
                     onClick={ (e) => props.reset(e) } />
+                <Control
+                    type="button"
+                    action="reset"
+                    value="Restore Defaults"
+                    onClick={ (e) => props.restoreDefaults(e) } />
             </div>
 
             <h3 className="ad-Controls-title">
