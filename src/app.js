@@ -13,7 +13,7 @@ class Container extends Component {
             snap: true,
             size: 50
         },
-        ctrl: false,
+        shiftKey: false,
         points: points,
         activePoint: points.length - 1,
         draggedPoint: false,
@@ -246,7 +246,7 @@ class Container extends Component {
     };
 
     setDraggedPoint = (index) => {
-        if ( ! this.state.ctrl) {
+        if (!this.state.shiftKey) {
             this.setState({
                 activePoint: index,
                 draggedPoint: true
@@ -255,7 +255,7 @@ class Container extends Component {
     };
 
     setDraggedQuadratic = (index) => {
-        if ( ! this.state.ctrl) {
+        if (!this.state.shiftKey) {
             this.setState({
                 activePoint: index,
                 draggedQuadratic: true
@@ -264,7 +264,7 @@ class Container extends Component {
     };
 
     setDraggedCubic = (index, anchor) => {
-        if ( ! this.state.ctrl) {
+        if (!this.state.shiftKey) {
             this.setState({
                 activePoint: index,
                 draggedCubic: anchor
@@ -281,7 +281,7 @@ class Container extends Component {
     };
 
     addPoint = (e) => {
-        if (this.state.ctrl) {
+        if (this.state.shiftKey) {
             let coords = this.getMouseCoords(e)
             let points = this.state.points
 
@@ -309,7 +309,7 @@ class Container extends Component {
     };
 
     handleMouseMove = (e) => {
-        if ( ! this.state.ctrl) {
+        if (!this.state.shiftKey) {
             if (this.state.draggedPoint) {
                 this.setPointCoords(this.getMouseCoords(e))
             } else if (this.state.draggedQuadratic) {
@@ -321,11 +321,11 @@ class Container extends Component {
     };
 
     handleKeyDown = (e) => {
-        if (e.ctrlKey) this.setState({ ctrl: true })
+        if (e.shiftKey) this.setState({ shiftKey: true })
     };
 
     handleKeyUp = (e) => {
-        if ( ! e.ctrlKey) this.setState({ ctrl: false })
+        if (!e.shiftKey) this.setState({ shiftKey: false })
     };
 
     generatePath() {
@@ -431,7 +431,7 @@ function Foot(props) {
                     <span className="ad-Foot-highlight">Click</span> to select a point
                 </li>
                 <li className="ad-Foot-item">
-                    <span className="ad-Foot-highlight">Ctrl + Click</span> to add a point
+                    <span className="ad-Foot-highlight">Shift + Click</span> to add a point
                 </li>
             </ul>
             <div className="ad-Foot-meta">
