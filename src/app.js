@@ -1,26 +1,9 @@
 const Component = React.Component
 const render = ReactDOM.render
-const pointStore = new SVGPointStore();
-
-const points = pointStore.load();
+const stateStore = new StateStore();
 
 class Container extends Component {
-    state = {
-        w: 800,
-        h: 600,
-        grid: {
-            show: true,
-            snap: true,
-            size: 50
-        },
-        shiftKey: false,
-        points: points,
-        activePoint: points.length - 1,
-        draggedPoint: false,
-        draggedQuadratic: false,
-        draggedCubic: false,
-        closePath: false
-    };
+    state = stateStore.load();
 
     componentWillMount() {
         document.addEventListener("keydown", this.handleKeyDown, false)
@@ -33,8 +16,7 @@ class Container extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-      const points = prevState.points;
-      pointStore.store(points);
+        stateStore.store(prevState);
     }
 
     positiveNumber(n) {
@@ -358,25 +340,29 @@ class Container extends Component {
     }
 
     reset = (e) => {
-        let w = this.state.w, h = this.state.h;
-
+        const state = this.state;
+        const w = state.w;
+        const h = state.h;
         const points = this.state.points;
+
         points.splice(0, points.length);
         points.push({ x: w / 2, y: h / 2 });
 
-        this.setState({
-            points,
-            activePoint: 0
-        })
+        state.points = points;
+        state.activePoint = points.length - 1;
+
+        this.setState(state);
     };
 
     restoreDefaults = (e) => {
-        const points = pointStore.loadDefaults();
+        const defaultState = stateStore.loadDefaults();
+        const state = this.state;
 
-        this.setState({
-            points: points,
-            activePoint: points.length - 1
-        })
+        for(var k in defaultState) {
+          state[k] = defaultState[k];
+        }
+
+        this.setState(state);
     };
 
     render() {

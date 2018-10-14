@@ -393,102 +393,116 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var defaultPoints = [{
-  x: 100,
-  y: 300
-}, {
-  x: 200,
-  y: 300,
-  q: {
-    x: 150,
-    y: 50
-  }
-}, {
-  x: 300,
-  y: 300,
-  q: {
-    x: 250,
-    y: 550
-  }
-}, {
-  x: 400,
-  y: 300,
-  q: {
-    x: 350,
-    y: 50
-  }
-}, {
-  x: 500,
-  y: 300,
-  c: [{
-    x: 450,
-    y: 550
-  }, {
-    x: 450,
-    y: 50
-  }]
-}, {
-  x: 600,
-  y: 300,
-  c: [{
-    x: 550,
-    y: 50
-  }, {
-    x: 550,
-    y: 550
-  }]
-}, {
-  x: 700,
-  y: 300,
-  a: {
-    rx: 50,
-    ry: 50,
-    rot: 0,
-    laf: 1,
-    sf: 1
-  }
-}];
-
-var SVGPointStore =
+var StateStore =
 /*#__PURE__*/
 function () {
-  function SVGPointStore() {
-    _classCallCheck(this, SVGPointStore);
+  function StateStore() {
+    _classCallCheck(this, StateStore);
   }
 
-  _createClass(SVGPointStore, [{
+  _createClass(StateStore, [{
     key: "loadDefaults",
     value: function loadDefaults() {
-      return defaultPoints;
+      var defaultPoints = [{
+        x: 100,
+        y: 300
+      }, {
+        x: 200,
+        y: 300,
+        q: {
+          x: 150,
+          y: 50
+        }
+      }, {
+        x: 300,
+        y: 300,
+        q: {
+          x: 250,
+          y: 550
+        }
+      }, {
+        x: 400,
+        y: 300,
+        q: {
+          x: 350,
+          y: 50
+        }
+      }, {
+        x: 500,
+        y: 300,
+        c: [{
+          x: 450,
+          y: 550
+        }, {
+          x: 450,
+          y: 50
+        }]
+      }, {
+        x: 600,
+        y: 300,
+        c: [{
+          x: 550,
+          y: 50
+        }, {
+          x: 550,
+          y: 550
+        }]
+      }, {
+        x: 700,
+        y: 300,
+        a: {
+          rx: 50,
+          ry: 50,
+          rot: 0,
+          laf: 1,
+          sf: 1
+        }
+      }];
+      return {
+        w: 800,
+        h: 600,
+        grid: {
+          show: true,
+          snap: true,
+          size: 50
+        },
+        shiftKey: false,
+        points: defaultPoints,
+        activePoint: defaultPoints.length - 1,
+        draggedPoint: false,
+        draggedQuadratic: false,
+        draggedCubic: false,
+        closePath: false
+      };
     }
   }, {
     key: "load",
     value: function load() {
       try {
-        var points = JSON.parse(localStorage.getItem('points')).points;
+        var state = JSON.parse(localStorage.getItem('state')).state;
 
-        if (points) {
-          return points;
+        if (state) {
+          return state;
         }
 
-        return defaultPoints;
+        return this.loadDefaults();
       } catch (e) {
-        return defaultPoints;
+        return this.loadDefaults();
       }
     }
   }, {
     key: "store",
-    value: function store(points) {
-      localStorage.setItem('points', JSON.stringify({
-        points: points
+    value: function store(state) {
+      localStorage.setItem('state', JSON.stringify({
+        state: state
       }));
     }
   }]);
 
-  return SVGPointStore;
+  return StateStore;
 }();
 
-window.SVGPointStore = SVGPointStore;</script>
+window.StateStore = StateStore;</script>
   <script type="text/javascript">"use strict";
 
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
@@ -519,8 +533,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 var Component = React.Component;
 var render = ReactDOM.render;
-var pointStore = new SVGPointStore();
-var points = pointStore.load();
+var stateStore = new StateStore();
 
 var Container =
 /*#__PURE__*/
@@ -540,22 +553,7 @@ function (_Component) {
 
     _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(Container)).call.apply(_getPrototypeOf2, [this].concat(args)));
 
-    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "state", {
-      w: 800,
-      h: 600,
-      grid: {
-        show: true,
-        snap: true,
-        size: 50
-      },
-      shiftKey: false,
-      points: points,
-      activePoint: points.length - 1,
-      draggedPoint: false,
-      draggedQuadratic: false,
-      draggedCubic: false,
-      closePath: false
-    });
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "state", stateStore.load());
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "setWidth", function (e) {
       var v = _this.positiveNumber(e.target.value),
@@ -822,13 +820,12 @@ function (_Component) {
       if (_this.state.shiftKey) {
         var coords = _this.getMouseCoords(e);
 
-        var _points = _this.state.points;
-
-        _points.push(coords);
+        var points = _this.state.points;
+        points.push(coords);
 
         _this.setState({
-          points: _points,
-          activePoint: _points.length - 1
+          points: points,
+          activePoint: points.length - 1
         });
       }
     });
@@ -872,28 +869,30 @@ function (_Component) {
     });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "reset", function (e) {
-      var w = _this.state.w,
-          h = _this.state.h;
+      var state = _this.state;
+      var w = state.w;
+      var h = state.h;
       var points = _this.state.points;
       points.splice(0, points.length);
       points.push({
         x: w / 2,
         y: h / 2
       });
+      state.points = points;
+      state.activePoint = points.length - 1;
 
-      _this.setState({
-        points: points,
-        activePoint: 0
-      });
+      _this.setState(state);
     });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "restoreDefaults", function (e) {
-      var points = pointStore.loadDefaults();
+      var defaultState = stateStore.loadDefaults();
+      var state = _this.state;
 
-      _this.setState({
-        points: points,
-        activePoint: points.length - 1
-      });
+      for (var k in defaultState) {
+        state[k] = defaultState[k];
+      }
+
+      _this.setState(state);
     });
 
     return _this;
@@ -914,8 +913,7 @@ function (_Component) {
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate(prevProps, prevState) {
-      var points = prevState.points;
-      pointStore.store(points);
+      stateStore.store(prevState);
     }
   }, {
     key: "positiveNumber",
