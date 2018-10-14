@@ -435,8 +435,8 @@ function Foot(props) {
                 </li>
             </ul>
             <div className="ad-Foot-meta">
-                <a href="https://twitter.com/a_dugois">Follow me on Twitter</a><br />
-                or <a href="http://anthonydugois.com/svg-path-builder/">check the online version</a>
+                Built by <a href="https://github.com/anthonydugois">anthonydugois</a><br />
+                Enhanced by <a href="https://github.com/dclaze">dclaze</a><br />
             </div>
         </div>
     )

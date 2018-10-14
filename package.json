@@ -4,7 +4,8 @@
   "description": "a tool for generating svg paths",
   "scripts": {
     "build": "./node_modules/.bin/babel src --out-dir lib",
-    "start": "npm run-script build && ./node_modules/http-server/bin/http-server -o"
+    "start": "npm run-script build && npm run-script demo && ./node_modules/http-server/bin/http-server docs/ -o",
+    "demo": "cp index.html docs/index.html && cp -r lib docs && cp -r styles docs"
   },
   "keywords": [],
   "author": {
